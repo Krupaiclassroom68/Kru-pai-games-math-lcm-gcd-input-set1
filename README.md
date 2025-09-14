@@ -1,0 +1,1 @@
+# Kru-pai-games-math-lcm-gcd-input-set1
