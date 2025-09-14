@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kru Pai • ค.ร.น. &amp; ห.ร.ม. — ดำส้ม พร้อมลงชื่อและสรุปคะแนน</title>
+<style>
+  :root {
+    --bg: #0b0f14;        /* ดำเข้ม */
+    --card: #111720;      /* กล่องเข้ม */
+    --ink: #e5e7eb;       /* ตัวอักษรอ่อน */
+    --muted: #9aa4b2;
+    --accent: #ff6f00;    /* ส้ม */
+    --accent2:#ffaa33;
+    --ok:#22c55e;
+    --bad:#ef4444;
+    --border:#1f2733;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font-family:'Segoe UI', system-ui, -apple-system, Tahoma, sans-serif; }
+  .wrap { max-width: 980px; margin: 28px auto; padding: 0 16px 64px; }
+  header { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom: 10px; }
+  .logo { width:64px; height:64px; border-radius:18px; display:grid; place-items:center; color:#0b0f14; font-weight:900; background: linear-gradient(145deg, var(--accent), var(--accent2)); box-shadow:0 10px 24px rgba(255,111,0,.2); }
+  h1 { margin:0; font-size:clamp(24px,3.6vw,40px); }
+  .subtitle { color:var(--muted); }
+  .watermark { color:var(--accent2); font-weight:800; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow:0 10px 28px rgba(0,0,0,.25); }
+  .controls { margin: 14px 0 20px; display:flex; gap:10px; flex-wrap:wrap; }
+  button { border:0; border-radius:12px; padding:11px 16px; cursor:pointer; color:#0b0f14; background:var(--accent); font-weight:700; font-size:16px; box-shadow:0 8px 18px rgba(255,111,0,.25); }
+  button.secondary { background:#222b36; color:var(--ink); box-shadow:none; border:1px solid var(--border); }
+  button.ghost { background:transparent; color:var(--ink); border:1px dashed var(--accent2); }
+  input[type="text"], input[type="number"] { background:#0c121a; color:var(--ink); border:1.5px solid var(--border); border-radius:12px; padding:10px 12px; font-size:16px; }
+  .qcard { background:#0c121a; border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-top:8px; }
+  .inputs { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+  .result { margin-left:8px; font-weight:800; }
+  .ok { color:var(--ok); }
+  .bad { color:var(--bad); }
+  .hint { color:var(--muted); font-size:14px; margin-top:4px; }
+  .grid { display:grid; gap:14px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  .hidden { display:none !important; }
+  footer { margin-top: 28px; color: var(--muted); font-size: 14px; }
+  .titlebar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:10px 0 14px; }
+  .pill { background:#18202b; border:1px solid var(--border); color:var(--ink); padding:6px 10px; border-radius:999px; font-size:13px; }
+  .scorebox { font-size: clamp(22px, 3vw, 28px); font-weight:900; color:var(--accent2); }
+  .summary-card { text-align:center; padding:24px; }
+  .name-big { font-size: clamp(22px,3.5vw,30px); font-weight:900; color:#fff; }
+  .big-score { font-size: clamp(40px,6vw,72px); font-weight:900; color:var(--ok); margin: 8px 0; }
+  .share-note { color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">KP</div>
+      <div>
+        <h1>Kru Pai • ค.ร.น. &amp; ห.ร.ม. — โทนดำส้ม</h1>
+        <div class="subtitle">อัปเดต 2025-09-14 04:02 • ลงชื่อ → ทำแบบฝึก → สรุปคะแนนเพื่อแคปจอส่งครู</div>
+        <div class="watermark">Kru Pai Classroom</div>
+      </div>
+    </header>
+
+    <!-- START SCREEN -->
+    <section id="screen-start" class="card">
+      <h2>ลงชื่อก่อนเริ่มทำแบบฝึก</h2>
+      <div class="grid grid-2">
+        <div>
+          <label>ชื่อเล่นนักเรียน</label><br/>
+          <input id="studentName" type="text" placeholder="เช่น น้องพลอย / น้องกันต์">
+        </div>
+        <div>
+          <label>ห้อง/ชั้น (ถ้ามี)</label><br/>
+          <input id="studentClass" type="text" placeholder="เช่น ม.1/3">
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="startQuiz()">เริ่มทำแบบฝึก</button>
+        <button class="secondary" onclick="window.print()">พิมพ์คำชี้แจง</button>
+      </div>
+      <div class="hint">* ระบบจะบันทึกชื่อไว้ในหน้านี้เท่านั้น (ไม่ส่งออกไปภายนอก)</div>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section id="screen-quiz" class="card hidden">
+      <div class="titlebar">
+        <div class="pill">ผู้ทำแบบฝึก: <span id="who">-</span></div>
+        <div class="scorebox">ถูก: <span id="score">0</span> / <span id="total">20</span></div>
+      </div>
+
+      <h2>🟧 ส่วนที่ 1: ค.ร.น. (10 ข้อ)</h2>
+      <ol id="lcm-list">
+        <!-- LCM problems -->
+      </ol>
+
+      <h2 style="margin-top:18px;">🟧 ส่วนที่ 2: ห.ร.ม. (10 ข้อ)</h2>
+      <ol id="gcd-list">
+        <!-- GCD problems -->
+      </ol>
+
+      <div class="controls">
+        <button onclick="finishQuiz()">จบแบบฝึก &gt; ดูสรุปคะแนน</button>
+        <button class="secondary" onclick="resetAll()">รีเซ็ตคำตอบทั้งหมด</button>
+      </div>
+    </section>
+
+    <!-- SUMMARY SCREEN -->
+    <section id="screen-summary" class="card hidden summary-card">
+      <div class="pill">สรุปผล • แคปหน้าจอส่งครูได้เลย</div>
+      <div class="name-big" id="sum-name">-</div>
+      <div style="margin:6px 0 14px; color:var(--muted);" id="sum-class"></div>
+      <div class="big-score"><span id="sum-correct">0</span> / 20</div>
+      <div class="share-note">เกณฑ์แนะนำ: ได้ ≥ 16 ถือว่าผ่านดีเยี่ยม ✨</div>
+      <div class="controls" style="justify-content:center;">
+        <button onclick="window.print()">พิมพ์ / บันทึก PDF</button>
+        <button class="secondary" onclick="backToStart()">กลับหน้าแรก</button>
+      </div>
+    </section>
+
+    <footer>© Kru Pai Classroom — Black &amp; Orange Edition • ไม่มีปุ่มดูเฉลย มีแต่ระบบตรวจคำตอบ ✅❌</footer>
+  </div>
+
+<script>
+const lcmProblems = [
+  { q:"รถสองคันออกทุก 12 และ 18 นาที เริ่มพร้อมกัน 08:00 จะออกพร้อมกันอีกในกี่นาที?", a:["36"], unit:"นาที" },
+  { q:"ไฟถนนสองหลอดกะพริบทุก 15 และ 20 วินาที เริ่มพร้อมกัน จะกะพริบพร้อมกันอีกในกี่วินาที?", a:["60"], unit:"วินาที" },
+  { q:"ฟุตบอลทุก 14 วัน บาสเกตบอลทุก 21 วัน วันนี้ตรงกัน จะตรงกันอีกในกี่วัน?", a:["42"], unit:"วัน" },
+  { q:"เครื่องจักรทำงานทุก 24 และ 30 นาที เริ่ม 09:00 จะพร้อมกันอีกในกี่นาที?", a:["120"], unit:"นาที" },
+  { q:"นาฬิกาตีทุก 25 และ 30 นาที ตีพร้อมกัน 12:00 จะตีพร้อมกันอีกในกี่นาที?", a:["150"], unit:"นาที" },
+  { q:"รถบัสออกทุก 45 และ 60 นาที จะออกพร้อมกันอีกในกี่นาที?", a:["180"], unit:"นาที" },
+  { q:"จัดแถวสินค้าได้แถวละ 8 และ 12 กล่อง ต้องมีกี่ชิ้นจึงลงตัวทั้งสองแบบ (น้อยที่สุด)?", a:["24"], unit:"ชิ้น" },
+  { q:"นักวิ่งใช้เวลา 6 และ 9 นาทีต่อรอบ เริ่มพร้อมกัน จะถึงจุดเริ่มพร้อมกันอีกในกี่นาที?", a:["18"], unit:"นาที" },
+  { q:"ตารางเรียน: คณิตทุก 3 วัน วิทย์ทุก 4 วัน อังกฤษทุก 6 วัน จะตรงกันอีกในกี่วัน?", a:["12"], unit:"วัน" },
+  { q:"ขวด 150 และ 200 มล. ต้องการปริมาตรรวมที่น้อยสุดซึ่งลงตัวทั้งสองแบบ (มิลลิลิตร)", a:["600"], unit:"มล." }
+];
+
+const gcdProblems = [
+  { q:"ลูกอม 48 เม็ด & ช็อกโกแลต 60 เม็ด ทำชุดเหมือนกันมากที่สุด: กี่ชุด, ลูกอม/ชุด, ช็อกโกแลต/ชุด", a:["12","4","5"], unit:"ชุด/เม็ด/เม็ด" },
+  { q:"นักเรียน 72 คน และ 84 คน แบ่งเป็นกลุ่มเท่ากันมากที่สุด: คน/กลุ่ม", a:["12"], unit:"คน" },
+  { q:"ขนมปัง 36 แผ่น & นม 54 กล่อง ทำชุดอาหารว่าง: กี่ชุด, ขนมปัง/ชุด, นม/ชุด", a:["18","2","3"], unit:"ชุด/แผ่น/กล่อง" },
+  { q:"โต๊ะ 96 ตัว & เก้าอี้ 120 ตัว จัดเป็นชุดห้องเรียน: กี่ชุด, โต๊ะ/ชุด, เก้าอี้/ชุด", a:["24","4","5"], unit:"ชุด/ตัว/ตัว" },
+  { q:"ชาย 56 & หญิง 98 จัดแถวเท่ากันมากที่สุด: กี่แถว, ชาย/แถว, หญิง/แถว", a:["14","4","7"], unit:"แถว/คน/คน" },
+  { q:"น้ำตาล 84 กก. & แป้ง 126 กก. แบ่งเป็นชุดเท่ากัน: กี่ชุด, น้ำตาล/ชุด, แป้ง/ชุด", a:["42","2","3"], unit:"ชุด/กก./กก." },
+  { q:"ท่อนเหล็ก 72 ม. & 108 ม. ตัดเป็นท่อนย่อยยาวที่สุดเท่ากัน: เมตร/ท่อน", a:["36"], unit:"เมตร" },
+  { q:"ดินสอ 132 แท่ง & ยางลบ 180 ก้อน ทำชุดเหมือนกันมากที่สุด: กี่ชุด, ดินสอ/ชุด, ยางลบ/ชุด", a:["12","11","15"], unit:"ชุด/แท่ง/ก้อน" },
+  { q:"แถบผ้า 150 ซม. & 210 ซม. ตัดเท่ากันมากที่สุด: เซนติเมตร/ชิ้น", a:["30"], unit:"ซม." },
+  { q:"ส้ม 90 ผล แอปเปิล 120 ผล กล้วย 150 ผล แบ่งลงกล่องเหมือนกันมากที่สุด: จำนวนกล่อง", a:["30"], unit:"กล่อง" }
+];
+
+let score = 0;
+const total = lcmProblems.length + gcdProblems.length;
+const state = {}; // จะเก็บถูก/ผิดของแต่ละข้อ
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('total').textContent = total;
+  buildList('lcm-list', lcmProblems, 'LCM');
+  buildList('gcd-list', gcdProblems, 'GCD');
+});
+
+function buildList(targetId, arr, prefix) {
+  const ul = document.getElementById(targetId);
+  arr.forEach((p, idx) => {
+    const li = document.createElement('li');
+    const id = `${prefix}-${idx+1}`;
+    li.innerHTML = `
+      ${p.q}
+      <div class="qcard">
+        <div class="hint">หน่วย: ${p.unit}</div>
+        <div class="inputs" data-id="${id}" data-ans="${p.a.join('|')}">
+          ${p.a.map(() => '<input type="number" placeholder="กรอกคำตอบ">').join('')}
+          <button onclick="check(this)">ตรวจ</button>
+          <span class="result"></span>
+        </div>
+      </div>`;
+    ul.appendChild(li);
+  });
+}
+
+function startQuiz() {
+  const name = (document.getElementById('studentName').value || '').trim();
+  const room = (document.getElementById('studentClass').value || '').trim();
+  if (!name) { alert('กรอกชื่อเล่นก่อนนะ'); return; }
+  document.getElementById('who').textContent = name + (room ? ' • ' + room : '');
+  // สลับจอ
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-quiz').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+function parseNum(v) { if(v===''||v===null||v===undefined) return null; return Number(v); }
+
+function check(btn) {
+  const box = btn.closest('.inputs');
+  const ans = box.dataset.ans.split('|').map(Number);
+  const id = box.dataset.id;
+  const inputs = Array.from(box.querySelectorAll('input[type=number]'));
+  const got = inputs.map(i => parseNum(i.value));
+  const res = box.querySelector('.result');
+
+  if (got.some(v => v===null || Number.isNaN(v))) {
+    res.textContent = 'กรอกให้ครบก่อนนะ';
+    res.className = 'result bad';
+    return;
+  }
+
+  let ok = true;
+  for (let i=0;i<ans.length;i++) { if (got[i] !== ans[i]) { ok = false; break; } }
+  if (ok) {
+    if (!state[id]) { state[id] = true; score++; document.getElementById('score').textContent = score; }
+    res.textContent = 'ถูกต้องจ้า ✅';
+    res.className = 'result ok';
+    // ล็อกอินพุตเมื่อถูก
+    inputs.forEach(i => i.disabled = true);
+    btn.disabled = true;
+  } else {
+    state[id] = false;
+    res.textContent = 'ยังไม่ถูก ลองใหม่ ❌';
+    res.className = 'result bad';
+  }
+}
+
+function finishQuiz() {
+  // ไปหน้า summary
+  const name = document.getElementById('studentName').value.trim();
+  const room = (document.getElementById('studentClass').value || '').trim();
+  document.getElementById('sum-name').textContent = name || '-';
+  document.getElementById('sum-class').textContent = room ? ('ชั้น/ห้อง: ' + room) : '';
+  document.getElementById('sum-correct').textContent = score;
+  document.getElementById('screen-quiz').classList.add('hidden');
+  document.getElementById('screen-summary').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+function resetAll() {
+  score = 0;
+  for (const k in state) delete state[k];
+  document.getElementById('score').textContent = 0;
+  document.querySelectorAll('input[type="number"]').forEach(i=>{ i.value=''; i.disabled=false; });
+  document.querySelectorAll('.result').forEach(r=>{ r.textContent=''; r.className='result'; });
+  document.querySelectorAll('.inputs button').forEach(b=> b.disabled=false);
+}
+
+function backToStart() {
+  resetAll();
+  document.getElementById('studentName').value='';
+  document.getElementById('studentClass').value='';
+  document.getElementById('screen-summary').classList.add('hidden');
+  document.getElementById('screen-start').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
